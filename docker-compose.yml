@@ -1,0 +1,107 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: ozmap-integration-app
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      isp-mock:
+        condition: service_healthy
+      ozmap-mock:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3050
+      ISP_API_BASE_URL: http://isp-mock:4000
+      OZMAP_API_BASE_URL: http://ozmap-mock:5000
+      MONGODB_URI: mongodb://root:root@mongodb:27017/ozmap_integration?authSource=admin
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/ozmap_integration
+      SYNC_INTERVAL_SECONDS: 60
+      ISP_RATE_LIMIT_PER_MINUTE: 50
+    volumes:
+      - ./src:/api/src
+      - ./tsconfig.json:/api/tsconfig.json
+    ports:
+      - "3050:3050"
+    restart: unless-stopped
+
+  isp-mock:
+    build:
+      context: .
+      dockerfile: mocks/Dockerfile
+    container_name: isp-mock
+    working_dir: /mock
+    command: json-server --host 0.0.0.0 --watch /mock/db.json --port 4000
+    volumes:
+      - ./mocks/isp/db.json:/mock/db.json:ro
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:4000/cables || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  ozmap-mock:
+    build:
+      context: .
+      dockerfile: mocks/Dockerfile
+    container_name: ozmap-mock
+    working_dir: /mock
+    command: sh -c "cp -f /seed/db.json /mock/db.json && json-server --host 0.0.0.0 --watch /mock/db.json --port 5000"
+    volumes:
+      - ./mocks/ozmap/db.json:/seed/db.json:ro
+      - ozmap_mock_data:/mock
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:5000/sync_logs || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    container_name: ozmap-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: ozmap_integration
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: [ "CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: ozmap-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ozmap_integration
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5474:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d ozmap_integration" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  ozmap_mock_data:
+  postgres_data:
