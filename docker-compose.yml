@@ -19,6 +19,12 @@ services:
       OZMAP_API_BASE_URL: http://ozmap-mock:5000
       MONGODB_URI: mongodb://root:root@mongodb:27017/ozmap_integration?authSource=admin
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/ozmap_integration
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: ozmap_integration
+      DB_SCHEMA: public
       SYNC_INTERVAL_SECONDS: 60
       ISP_RATE_LIMIT_PER_MINUTE: 50
     volumes:
