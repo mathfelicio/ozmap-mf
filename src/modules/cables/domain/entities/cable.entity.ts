@@ -9,7 +9,6 @@ export class Cable {
     public readonly id: number | null,
     public name: string,
     public capacity: number,
-    public boxesConnected: number[],
     public path: CablePathPoint[],
     public readonly createdAt: Date,
     public updatedAt: Date | null,
@@ -31,7 +30,6 @@ export class Cable {
       props.id ?? null,
       props.name,
       props.capacity,
-      props.boxesConnected,
       props.path,
       now,
       null,
@@ -45,7 +43,6 @@ export class Cable {
       props.id,
       props.name,
       props.capacity,
-      props.boxesConnected,
       props.path,
       props.createdAt,
       props.updatedAt ?? null,
@@ -57,7 +54,6 @@ export class Cable {
   update(partial: Partial<Cable>): void {
     this.name = partial.name ?? this.name;
     this.capacity = partial.capacity ?? this.capacity;
-    this.boxesConnected = partial.boxesConnected ?? this.boxesConnected;
     this.path = partial.path ?? this.path;
     this.updatedAt = new Date();
 

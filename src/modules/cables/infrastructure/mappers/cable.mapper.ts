@@ -8,15 +8,10 @@ interface MapOptions {
 
 export class CableMapper {
   static toDomain(orm: CableOrmEntity, options: MapOptions = {}): Cable {
-    const boxesConnected = (orm.boxesConnected ?? []).map((boxId) =>
-      Number(boxId),
-    );
-
     const cable = Cable.rehydrate({
       id: orm.id,
       name: orm.name,
       capacity: orm.capacity,
-      boxesConnected,
       path: orm.path ?? [],
       createdAt: orm.createdAt,
       updatedAt: orm.updatedAt ?? null,
@@ -42,7 +37,6 @@ export class CableMapper {
 
     orm.name = domain.name;
     orm.capacity = domain.capacity;
-    orm.boxesConnected = domain.boxesConnected;
     orm.path = domain.path;
     orm.createdAt = domain.createdAt;
     orm.updatedAt = domain.updatedAt;

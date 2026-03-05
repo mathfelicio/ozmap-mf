@@ -9,7 +9,6 @@ export interface CableProps {
   id: number | null;
   name: string;
   capacity: number;
-  boxesConnected: number[];
   path: CablePathPoint[];
   createdAt: Date;
   updatedAt: Date | null;

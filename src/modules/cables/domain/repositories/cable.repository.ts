@@ -19,6 +19,8 @@ export interface ICableRepository {
 
   create(cable: Cable): Promise<Cable>;
 
+  upsertMany(cables: Cable[]): Promise<Cable[]>;
+
   update(cable: Cable): Promise<Cable>;
 
   delete(cable: Cable): Promise<void>;

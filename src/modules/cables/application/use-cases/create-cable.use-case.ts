@@ -13,9 +13,16 @@ export class CreateCableUseCase {
     private readonly cableRepository: ICableRepository,
   ) {}
 
-  async execute(payload: CreateCableCommandPayload): Promise<Cable> {
-    const cable = Cable.create(payload);
+  async execute(payload: CreateCableCommandPayload[]): Promise<Cable[]> {
+    const cables = payload.map((cable) =>
+      Cable.create({
+        id: cable.id,
+        name: cable.name,
+        capacity: cable.capacity,
+        path: cable.path,
+      }),
+    );
 
-    return this.cableRepository.create(cable);
+    return this.cableRepository.upsertMany(cables);
   }
 }

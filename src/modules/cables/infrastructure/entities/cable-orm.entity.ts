@@ -21,9 +21,6 @@ export class CableOrmEntity {
   @Column({ name: "capacity", type: "int" })
   capacity!: number;
 
-  @Column({ name: "boxes_connected", type: "simple-array" })
-  boxesConnected!: number[];
-
   @Column({ name: "path", type: "simple-json" })
   path!: Array<{ lat: number; lng: number }>;
 

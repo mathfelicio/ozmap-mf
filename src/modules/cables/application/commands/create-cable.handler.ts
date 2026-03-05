@@ -6,11 +6,11 @@ import { CreateCableCommand } from "./create-cable.command";
 @CommandHandler(CreateCableCommand)
 export class CreateCableHandler implements ICommandHandler<
   CreateCableCommand,
-  Cable
+  Cable[]
 > {
   constructor(private readonly createCableUseCase: CreateCableUseCase) {}
 
-  async execute(command: CreateCableCommand): Promise<Cable> {
+  async execute(command: CreateCableCommand): Promise<Cable[]> {
     return this.createCableUseCase.execute(command.payload);
   }
 }

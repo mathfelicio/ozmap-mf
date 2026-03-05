@@ -23,10 +23,6 @@ export class CreateCablesTable1741202000002 implements MigrationInterface {
         type: "int",
       },
       {
-        name: "boxes_connected",
-        type: "text",
-      },
-      {
         name: "path",
         type: "json",
       },

@@ -6,7 +6,6 @@ export class CableValidator {
   static validate(entity: Cable): void {
     this.validateName(entity.name);
     this.validateCapacity(entity.capacity);
-    this.validateBoxesConnected(entity.boxesConnected);
     this.validatePath(entity.path);
     this.validateCreatedAt(entity.createdAt);
     this.validateUpdatedAt(entity.updatedAt);
@@ -15,7 +14,6 @@ export class CableValidator {
   static validateUpdated(entity: Cable): void {
     this.validateName(entity.name);
     this.validateCapacity(entity.capacity);
-    this.validateBoxesConnected(entity.boxesConnected);
     this.validatePath(entity.path);
     this.validateUpdatedAt(entity.updatedAt);
   }
@@ -30,16 +28,6 @@ export class CableValidator {
     DomainValidator.required("capacity", capacity);
     DomainValidator.isInt("capacity", capacity);
     DomainValidator.min("capacity", capacity, 1);
-  }
-
-  private static validateBoxesConnected(boxesConnected: number[]): void {
-    DomainValidator.required("boxesConnected", boxesConnected);
-    DomainValidator.isArray("boxesConnected", boxesConnected);
-
-    boxesConnected.forEach((boxId, index) => {
-      DomainValidator.isInt(`boxesConnected[${index}]`, boxId);
-      DomainValidator.min(`boxesConnected[${index}]`, boxId, 1);
-    });
   }
 
   private static validatePath(path: CablePathPoint[]): void {
@@ -65,4 +53,3 @@ export class CableValidator {
     );
   }
 }
-
