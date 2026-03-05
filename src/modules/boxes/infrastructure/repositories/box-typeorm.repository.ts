@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { EntityManager, Repository } from "typeorm";
+import { EntityManager, In, Repository } from "typeorm";
 
 import type {
   FindCriteria,
@@ -39,13 +39,35 @@ export class BoxTypeormRepository implements IBoxRepository {
       ...(options as any),
     });
 
-    return orms.map(BoxMapper.toDomain);
+    return orms.map((orm) => BoxMapper.toDomain(orm));
   }
 
   async create(box: Box): Promise<Box> {
     const saved = await this.repository.save(BoxMapper.toPersistence(box));
 
     return BoxMapper.toDomain(saved);
+  }
+
+  async upsertMany(boxes: Box[]): Promise<Box[]> {
+    if (!boxes.length) {
+      return [];
+    }
+
+    const persistenceBoxes = boxes.map(BoxMapper.toPersistence);
+
+    await this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(BoxOrmEntity)
+      .values(persistenceBoxes)
+      .orUpdate(["name", "type", "lat", "lng"], ["id"])
+      .execute();
+
+    const ids = persistenceBoxes.map((b) => b.id);
+
+    const saved = await this.repository.findBy({ id: In(ids) });
+
+    return saved.map((entity) => BoxMapper.toDomain(entity));
   }
 
   async update(box: Box): Promise<Box> {
@@ -62,4 +84,3 @@ export class BoxTypeormRepository implements IBoxRepository {
     await this.repository.softDelete(box.id);
   }
 }
-

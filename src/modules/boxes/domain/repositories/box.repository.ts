@@ -19,8 +19,9 @@ export interface IBoxRepository {
 
   create(box: Box): Promise<Box>;
 
+  upsertMany(boxes: Box[]): Promise<Box[]>;
+
   update(box: Box): Promise<Box>;
 
   delete(box: Box): Promise<void>;
 }
-
