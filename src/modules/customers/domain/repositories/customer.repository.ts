@@ -23,4 +23,3 @@ export interface ICustomerRepository {
 
   delete(customer: Customer): Promise<void>;
 }
-

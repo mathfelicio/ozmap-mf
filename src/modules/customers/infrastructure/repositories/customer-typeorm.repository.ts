@@ -39,7 +39,7 @@ export class CustomerTypeormRepository implements ICustomerRepository {
       ...(options as any),
     });
 
-    return orms.map(CustomerMapper.toDomain);
+    return orms.map((orm) => CustomerMapper.toDomain(orm));
   }
 
   async create(customer: Customer): Promise<Customer> {
@@ -66,4 +66,3 @@ export class CustomerTypeormRepository implements ICustomerRepository {
     await this.repository.softDelete(customer.id);
   }
 }
-
