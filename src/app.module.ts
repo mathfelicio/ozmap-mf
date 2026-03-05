@@ -6,12 +6,14 @@ import { CustomersModule } from "./modules/customers/customers.module";
 import { BoxesModule } from "./modules/boxes/boxes.module";
 import { DropCablesModule } from "./modules/drop-cables/drop-cables.module";
 import { CqrsModule } from "@nestjs/cqrs";
+import { ScheduleModule } from "@nestjs/schedule";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { dataSourceOptions } from "./database/config/mysql-orm.config";
 
 @Module({
   imports: [
     CqrsModule.forRoot(),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       useFactory: () => dataSourceOptions,
     }),
