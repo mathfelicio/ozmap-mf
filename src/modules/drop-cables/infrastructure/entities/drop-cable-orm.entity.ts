@@ -3,9 +3,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { BoxOrmEntity } from "../../../boxes/infrastructure/entities/box-orm.entity";
+import { CustomerOrmEntity } from "../../../customers/infrastructure/entities/customer-orm.entity";
 
 @Entity("drop_cables")
 export class DropCableOrmEntity {
@@ -18,8 +22,22 @@ export class DropCableOrmEntity {
   @Column({ name: "box_id", type: "int" })
   boxId!: number;
 
+  @ManyToOne(() => BoxOrmEntity, {
+    onDelete: "NO ACTION",
+    nullable: false,
+  })
+  @JoinColumn({ name: "box_id" })
+  box?: BoxOrmEntity;
+
   @Column({ name: "customer_id", type: "int" })
   customerId!: number;
+
+  @ManyToOne(() => CustomerOrmEntity, {
+    onDelete: "NO ACTION",
+    nullable: false,
+  })
+  @JoinColumn({ name: "customer_id" })
+  customer?: CustomerOrmEntity;
 
   @CreateDateColumn({ name: "created_at" })
   createdAt!: Date;
@@ -30,4 +48,3 @@ export class DropCableOrmEntity {
   @DeleteDateColumn({ name: "deleted_at", nullable: true })
   deletedAt?: Date | null;
 }
-

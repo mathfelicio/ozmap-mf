@@ -39,7 +39,7 @@ export class DropCableTypeormRepository implements IDropCableRepository {
       ...(options as any),
     });
 
-    return orms.map(DropCableMapper.toDomain);
+    return orms.map((orm) => DropCableMapper.toDomain(orm));
   }
 
   async create(dropCable: DropCable): Promise<DropCable> {
@@ -66,4 +66,3 @@ export class DropCableTypeormRepository implements IDropCableRepository {
     await this.repository.softDelete(dropCable.id);
   }
 }
-
