@@ -1,0 +1,40 @@
+import { Cable } from "../../domain/entities/cable.entity";
+import { CableOrmEntity } from "../entities/cable-orm.entity";
+
+export class CableMapper {
+  static toDomain(orm: CableOrmEntity): Cable {
+    const boxesConnected = (orm.boxesConnected ?? []).map((boxId) =>
+      Number(boxId),
+    );
+
+    return Cable.rehydrate({
+      id: orm.id,
+      name: orm.name,
+      capacity: orm.capacity,
+      boxesConnected,
+      path: orm.path ?? [],
+      createdAt: orm.createdAt,
+      updatedAt: orm.updatedAt ?? null,
+      deletedAt: orm.deletedAt ?? null,
+    });
+  }
+
+  static toPersistence(domain: Cable): CableOrmEntity {
+    const orm = new CableOrmEntity();
+
+    if (domain.id !== null) {
+      orm.id = domain.id;
+    }
+
+    orm.name = domain.name;
+    orm.capacity = domain.capacity;
+    orm.boxesConnected = domain.boxesConnected;
+    orm.path = domain.path;
+    orm.createdAt = domain.createdAt;
+    orm.updatedAt = domain.updatedAt;
+    orm.deletedAt = domain.deletedAt;
+
+    return orm;
+  }
+}
+
