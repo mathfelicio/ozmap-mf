@@ -1,3 +1,3 @@
 export class RunIspSyncCommand {
-  constructor(public readonly triggeredBy: string = 'manual') {}
+  constructor(public readonly triggeredBy: string = "manual") {}
 }
