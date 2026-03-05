@@ -8,7 +8,7 @@ Este repositorio contem um ambiente Docker pronto para executar o teste tecnico 
 - `isp-mock`: API mock do ISP com `json-server` (porta `4000`).
 - `ozmap-mock`: API mock do OZmap com `json-server` (porta `5000`).
 - `mongodb`: persistencia dos snapshots da sincronizacao (porta `27017`).
-- `postgres`: banco relacional para persistencia (porta `5432`).
+- `mysql`: banco relacional para persistencia (porta `3306` no container, `5474` no host).
 
 ## Pre-requisitos
 
@@ -18,26 +18,25 @@ Este repositorio contem um ambiente Docker pronto para executar o teste tecnico 
 ## Como rodar
 
 ```bash
-docker compose up --build -d
+./app run
 ```
 
-Se estiver migrando de uma versao anterior do compose deste projeto, faca limpeza antes:
+Modo desenvolvimento (sobe dependencias e executa `yarn dev` no container da app):
 
 ```bash
-docker compose down -v --remove-orphans
-docker compose up --build -d
+./app dev
 ```
 
 Acompanhar logs:
 
 ```bash
-docker compose logs -f app
+./app logs
 ```
 
 Parar ambiente:
 
 ```bash
-docker compose down
+./app stop
 ```
 
 Remover volume do MongoDB:
@@ -59,7 +58,7 @@ Definidas no `docker-compose.yml`:
 - `ISP_API_BASE_URL=http://isp-mock:4000`
 - `OZMAP_API_BASE_URL=http://ozmap-mock:5000`
 - `MONGODB_URI=mongodb://root:root@mongodb:27017/ozmap_integration?authSource=admin`
-- `DATABASE_URL=postgres://postgres:postgres@postgres:5432/ozmap_integration`
+- `DATABASE_URL=mysql://root:root@mysql:3306/ozmap_integration`
 - `SYNC_INTERVAL_SECONDS=60`
 - `ISP_RATE_LIMIT_PER_MINUTE=50`
 
@@ -79,7 +78,10 @@ Definidas no `docker-compose.yml`:
 |-- package.json
 |-- tsconfig.json
 |-- src/
-|   `-- index.ts
+|   |-- main.ts
+|   |-- app.module.ts
+|   `-- modules/
+|       `-- isp-sync/
 `-- mocks/
     |-- isp/db.json
     `-- ozmap/db.json

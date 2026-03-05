@@ -1,6 +1,26 @@
-import { Module } from '@nestjs/common';
+import { Module } from "@nestjs/common";
+import { IspSyncModule } from "./modules/isp-sync/isp-sync.module";
+import { OzmSdkModule } from "./modules/ozm-sdk/ozm-sdk.module";
+import { CablesModule } from "./modules/cables/cables.module";
+import { CustomersModule } from "./modules/customers/customers.module";
+import { BoxesModule } from "./modules/boxes/boxes.module";
+import { DropCablesModule } from "./modules/drop-cables/drop-cables.module";
+import { CqrsModule } from "@nestjs/cqrs";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { dataSourceOptions } from "./database/config/mysql-orm.config";
 
 @Module({
-  imports: []
+  imports: [
+    CqrsModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+      useFactory: () => dataSourceOptions,
+    }),
+    IspSyncModule,
+    OzmSdkModule,
+    CablesModule,
+    CustomersModule,
+    BoxesModule,
+    DropCablesModule,
+  ],
 })
 export class AppModule {}

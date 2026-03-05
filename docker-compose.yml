@@ -6,7 +6,7 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
-      postgres:
+      mysql:
         condition: service_healthy
       isp-mock:
         condition: service_healthy
@@ -18,13 +18,12 @@ services:
       ISP_API_BASE_URL: http://isp-mock:4000
       OZMAP_API_BASE_URL: http://ozmap-mock:5000
       MONGODB_URI: mongodb://root:root@mongodb:27017/ozmap_integration?authSource=admin
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/ozmap_integration
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
+      DATABASE_URL: mysql://root:root@mysql:3306/ozmap_integration
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: root
       DB_DATABASE: ozmap_integration
-      DB_SCHEMA: public
       SYNC_INTERVAL_SECONDS: 60
       ISP_RATE_LIMIT_PER_MINUTE: 50
     volumes:
@@ -89,19 +88,18 @@ services:
       retries: 5
     restart: unless-stopped
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: ozmap-postgres
+  mysql:
+    image: mysql:8.4
+    container_name: ozmap-mysql
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ozmap_integration
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ozmap_integration
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     ports:
-      - "5474:5432"
+      - "5484:3306"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d ozmap_integration" ]
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -proot" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -110,4 +108,4 @@ services:
 volumes:
   mongodb_data:
   ozmap_mock_data:
-  postgres_data:
+  mysql_data:
