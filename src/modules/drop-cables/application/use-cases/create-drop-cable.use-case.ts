@@ -13,9 +13,7 @@ export class CreateDropCableUseCase {
     private readonly dropCableRepository: IDropCableRepository,
   ) {}
 
-  async execute(
-    payload: CreateDropCableCommandPayload,
-  ): Promise<DropCable> {
+  async execute(payload: CreateDropCableCommandPayload): Promise<DropCable> {
     const dropCable = DropCable.create(payload);
 
     return this.dropCableRepository.create(dropCable);
