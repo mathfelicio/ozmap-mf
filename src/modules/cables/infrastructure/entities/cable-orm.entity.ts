@@ -3,9 +3,12 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { BoxOrmEntity } from "../../../boxes/infrastructure/entities/box-orm.entity";
 
 @Entity("cables")
 export class CableOrmEntity {
@@ -32,4 +35,18 @@ export class CableOrmEntity {
 
   @DeleteDateColumn({ name: "deleted_at", nullable: true })
   deletedAt?: Date | null;
+
+  @ManyToMany(() => BoxOrmEntity, (box) => box.cables)
+  @JoinTable({
+    name: "cable_boxes_connected",
+    joinColumn: {
+      name: "cable_id",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "box_id",
+      referencedColumnName: "id",
+    },
+  })
+  boxes?: BoxOrmEntity[];
 }

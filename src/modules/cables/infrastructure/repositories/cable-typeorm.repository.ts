@@ -39,7 +39,7 @@ export class CableTypeormRepository implements ICableRepository {
       ...(options as any),
     });
 
-    return orms.map(CableMapper.toDomain);
+    return orms.map((orm) => CableMapper.toDomain(orm));
   }
 
   async create(cable: Cable): Promise<Cable> {

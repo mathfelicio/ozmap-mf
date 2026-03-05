@@ -1,13 +1,18 @@
 import { Cable } from "../../domain/entities/cable.entity";
+import { BoxMapper } from "../../../boxes/infrastructure/mappers/box.mapper";
 import { CableOrmEntity } from "../entities/cable-orm.entity";
 
+interface MapOptions {
+  relations?: boolean;
+}
+
 export class CableMapper {
-  static toDomain(orm: CableOrmEntity): Cable {
+  static toDomain(orm: CableOrmEntity, options: MapOptions = {}): Cable {
     const boxesConnected = (orm.boxesConnected ?? []).map((boxId) =>
       Number(boxId),
     );
 
-    return Cable.rehydrate({
+    const cable = Cable.rehydrate({
       id: orm.id,
       name: orm.name,
       capacity: orm.capacity,
@@ -17,6 +22,15 @@ export class CableMapper {
       updatedAt: orm.updatedAt ?? null,
       deletedAt: orm.deletedAt ?? null,
     });
+
+    if (options.relations !== false) {
+      cable.boxes =
+        orm.boxes?.map((box) =>
+          BoxMapper.toDomain(box, { relations: false }),
+        ) ?? [];
+    }
+
+    return cable;
   }
 
   static toPersistence(domain: Cable): CableOrmEntity {
@@ -37,4 +51,3 @@ export class CableMapper {
     return orm;
   }
 }
-

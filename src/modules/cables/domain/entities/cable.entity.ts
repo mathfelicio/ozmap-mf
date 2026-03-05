@@ -1,7 +1,10 @@
+import type { Box } from "../../../boxes/domain/entities/box.entity";
 import type { CablePathPoint, CableProps } from "../types/cable.props";
 import { CableValidator } from "../validators/cable.validator";
 
 export class Cable {
+  public boxes?: Box[];
+
   private constructor(
     public readonly id: number | null,
     public name: string,
@@ -11,17 +14,21 @@ export class Cable {
     public readonly createdAt: Date,
     public updatedAt: Date | null,
     public deletedAt: Date | null,
+    boxes: Box[] = [],
   ) {
+    this.boxes = boxes;
     CableValidator.validate(this);
   }
 
   static create(
-    props: Omit<CableProps, "id" | "createdAt" | "updatedAt" | "deletedAt">,
+    props: Omit<CableProps, "id" | "createdAt" | "updatedAt" | "deletedAt"> & {
+      id?: number | null;
+    },
   ): Cable {
     const now = new Date();
 
     return new Cable(
-      null,
+      props.id ?? null,
       props.name,
       props.capacity,
       props.boxesConnected,
@@ -29,6 +36,7 @@ export class Cable {
       now,
       null,
       null,
+      props.boxes ?? [],
     );
   }
 
@@ -42,6 +50,7 @@ export class Cable {
       props.createdAt,
       props.updatedAt ?? null,
       props.deletedAt ?? null,
+      props.boxes ?? [],
     );
   }
 

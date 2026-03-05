@@ -1,3 +1,5 @@
+import type { Box } from "../../../boxes/domain/entities/box.entity";
+
 export interface CablePathPoint {
   lat: number;
   lng: number;
@@ -12,4 +14,5 @@ export interface CableProps {
   createdAt: Date;
   updatedAt: Date | null;
   deletedAt: Date | null;
+  boxes?: Box[];
 }

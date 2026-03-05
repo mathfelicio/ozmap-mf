@@ -23,4 +23,3 @@ export interface ICableRepository {
 
   delete(cable: Cable): Promise<void>;
 }
-
