@@ -34,6 +34,7 @@ export class SyncBoxesOzmapUseCase implements Syncable<Box> {
     const sdk = this.ozmSdkAuthService.auth;
     this.itemsToCreate = [];
     this.itemsToUpdate = [];
+    const remoteBoxes = await sdk.box.findAll();
 
     await Promise.all(
       this.itemsToSync.map(async (box) => {
@@ -44,17 +45,9 @@ export class SyncBoxesOzmapUseCase implements Syncable<Box> {
           return;
         }
 
-        const existingBoxes = await sdk.box.findAll({
-          filter: [
-            {
-              property: "external_id",
-              operator: "=",
-              value: externalId,
-            },
-          ],
-        });
-
-        const remoteBox = existingBoxes?.[0];
+        const remoteBox = remoteBoxes.find(
+          (item) => String(item.external_id) === externalId,
+        );
 
         if (remoteBox) {
           this.itemsToUpdate.push({
