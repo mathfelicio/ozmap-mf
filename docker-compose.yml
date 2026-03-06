@@ -35,17 +35,17 @@ services:
 
   isp-mock:
     build:
-      context: .
-      dockerfile: mocks/Dockerfile
+      context: ./mocks/isp
+      dockerfile: ../Dockerfile
     container_name: isp-mock
     working_dir: /mock
-    command: json-server --host 0.0.0.0 --watch /mock/db.json --port 4000
+    command: json-server --host 0.0.0.0 --watch db.json --port 4000
     volumes:
-      - ./mocks/isp/db.json:/mock/db.json:ro
+      - ./mocks/isp/db.json:/mock/db.json
     ports:
       - "4000:4000"
     healthcheck:
-      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:4000/cables || exit 1" ]
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:4000/boxes || exit 1" ]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -53,18 +53,19 @@ services:
 
   ozmap-mock:
     build:
-      context: .
-      dockerfile: mocks/Dockerfile
+      context: ./mocks/ozmap
+      dockerfile: ../Dockerfile
     container_name: ozmap-mock
     working_dir: /mock
-    command: sh -c "cp -f /seed/db.json /mock/db.json && json-server --host 0.0.0.0 --watch /mock/db.json --port 5000"
+    command: node server.js
     volumes:
-      - ./mocks/ozmap/db.json:/seed/db.json:ro
-      - ozmap_mock_data:/mock
+      - ./mocks/ozmap/db.json:/mock/db.json
+      - ./mocks/ozmap/server.js:/mock/server.js
+      - ./mocks/ozmap/package.json:/mock/package.json
     ports:
       - "5000:5000"
     healthcheck:
-      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:5000/sync_logs || exit 1" ]
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:5000/api/v2/boxes || exit 1" ]
       interval: 5s
       timeout: 3s
       retries: 20

@@ -4,6 +4,7 @@ import { DataSource, DataSourceOptions } from "typeorm";
 import { loadEnv } from "../../common/helpers/load-env.helper";
 
 loadEnv();
+const isTsRuntime = __filename.endsWith(".ts");
 
 export const mysqlOrmConfig: DataSourceOptions = {
   type: "mysql",
@@ -16,10 +17,18 @@ export const mysqlOrmConfig: DataSourceOptions = {
   logging: false,
   migrationsRun: env.NODE_ENV === "test",
   entities: [
-    path.resolve(__dirname, "..", "..", "**", "*-orm.entity{.ts,.js}"),
+    path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "**",
+      isTsRuntime ? "*-orm.entity.ts" : "*-orm.entity.js",
+    ),
   ],
   entitySkipConstructor: true,
-  migrations: [path.resolve(__dirname, "..", "migrations", "*{.ts,.js}")],
+  migrations: [
+    path.resolve(__dirname, "..", "migrations", isTsRuntime ? "*.ts" : "*.js"),
+  ],
 };
 
 export const dataSourceOptions = mysqlOrmConfig;
