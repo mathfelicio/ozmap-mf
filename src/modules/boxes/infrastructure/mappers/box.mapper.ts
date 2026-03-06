@@ -39,7 +39,7 @@ export class BoxMapper {
     return box;
   }
 
-  static toPersistence(domain: Box): BoxOrmEntity {
+  static toPersistence(domain: Box, options: MapOptions = {}): BoxOrmEntity {
     const orm = new BoxOrmEntity();
 
     if (domain.id !== null) {
@@ -53,6 +53,26 @@ export class BoxMapper {
     orm.createdAt = domain.createdAt;
     orm.updatedAt = domain.updatedAt;
     orm.deletedAt = domain.deletedAt;
+
+    if (options.relations !== false) {
+      if (domain.customers) {
+        orm.customers = domain.customers.map((customer) =>
+          CustomerMapper.toPersistence(customer, { relations: false }),
+        );
+      }
+
+      if (domain.dropCables) {
+        orm.dropCables = domain.dropCables.map((dropCable) =>
+          DropCableMapper.toPersistence(dropCable, { relations: false }),
+        );
+      }
+
+      if (domain.cables) {
+        orm.cables = domain.cables.map((cable) =>
+          CableMapper.toPersistence(cable, { relations: false }),
+        );
+      }
+    }
 
     return orm;
   }

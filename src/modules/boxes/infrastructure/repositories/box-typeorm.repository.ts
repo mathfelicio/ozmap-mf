@@ -42,6 +42,16 @@ export class BoxTypeormRepository implements IBoxRepository {
     return orms.map((orm) => BoxMapper.toDomain(orm));
   }
 
+  async findByIds(ids: number[]): Promise<Box[]> {
+    if (!ids.length) {
+      return [];
+    }
+
+    const orms = await this.repository.findBy({ id: In(ids) });
+
+    return orms.map((orm) => BoxMapper.toDomain(orm));
+  }
+
   async create(box: Box): Promise<Box> {
     const saved = await this.repository.save(BoxMapper.toPersistence(box));
 
@@ -53,7 +63,7 @@ export class BoxTypeormRepository implements IBoxRepository {
       return [];
     }
 
-    const persistenceBoxes = boxes.map(BoxMapper.toPersistence);
+    const persistenceBoxes = boxes.map((box) => BoxMapper.toPersistence(box));
 
     await this.repository
       .createQueryBuilder()

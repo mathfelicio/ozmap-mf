@@ -17,6 +17,8 @@ export interface IBoxRepository {
     options?: FindOptions<Box>,
   ): Promise<Box[]>;
 
+  findByIds(ids: number[]): Promise<Box[]>;
+
   create(box: Box): Promise<Box>;
 
   upsertMany(boxes: Box[]): Promise<Box[]>;
