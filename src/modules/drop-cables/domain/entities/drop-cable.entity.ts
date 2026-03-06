@@ -27,9 +27,7 @@ export class DropCable {
     props: Omit<
       DropCableProps,
       "id" | "createdAt" | "updatedAt" | "deletedAt"
-    > & {
-      id?: number | null;
-    },
+    > & { id?: number | null },
   ): DropCable {
     const now = new Date();
 

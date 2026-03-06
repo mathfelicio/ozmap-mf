@@ -6,13 +6,13 @@ import { CreateDropCableCommand } from "./create-drop-cable.command";
 @CommandHandler(CreateDropCableCommand)
 export class CreateDropCableHandler implements ICommandHandler<
   CreateDropCableCommand,
-  DropCable
+  DropCable[]
 > {
   constructor(
     private readonly createDropCableUseCase: CreateDropCableUseCase,
   ) {}
 
-  async execute(command: CreateDropCableCommand): Promise<DropCable> {
+  async execute(command: CreateDropCableCommand): Promise<DropCable[]> {
     return this.createDropCableUseCase.execute(command.payload);
   }
 }

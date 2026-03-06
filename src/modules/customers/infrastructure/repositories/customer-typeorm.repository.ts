@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { EntityManager, Repository } from "typeorm";
+import { EntityManager, In, Repository } from "typeorm";
 
 import type {
   FindCriteria,
@@ -48,6 +48,30 @@ export class CustomerTypeormRepository implements ICustomerRepository {
     );
 
     return CustomerMapper.toDomain(saved);
+  }
+
+  async upsertMany(customers: Customer[]): Promise<Customer[]> {
+    if (!customers.length) {
+      return [];
+    }
+
+    const persistenceCustomers = customers.map((customer) =>
+      CustomerMapper.toPersistence(customer),
+    );
+
+    await this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(CustomerOrmEntity)
+      .values(persistenceCustomers)
+      .orUpdate(["code", "name", "address", "box_id"], ["id"])
+      .execute();
+
+    const ids = persistenceCustomers.map((customer) => customer.id);
+
+    const saved = await this.repository.findBy({ id: In(ids) });
+
+    return saved.map((entity) => CustomerMapper.toDomain(entity));
   }
 
   async update(customer: Customer): Promise<Customer> {

@@ -13,9 +13,17 @@ export class CreateCustomerUseCase {
     private readonly customerRepository: ICustomerRepository,
   ) {}
 
-  async execute(payload: CreateCustomerCommandPayload): Promise<Customer> {
-    const customer = Customer.create(payload);
+  async execute(payload: CreateCustomerCommandPayload[]): Promise<Customer[]> {
+    const customers = payload.map((customer) =>
+      Customer.create({
+        id: customer.id,
+        code: customer.code,
+        name: customer.name,
+        address: customer.address,
+        boxId: customer.box_id,
+      }),
+    );
 
-    return this.customerRepository.create(customer);
+    return this.customerRepository.upsertMany(customers);
   }
 }

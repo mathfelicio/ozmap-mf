@@ -33,7 +33,10 @@ export class CustomerMapper {
     return customer;
   }
 
-  static toPersistence(domain: Customer): CustomerOrmEntity {
+  static toPersistence(
+    domain: Customer,
+    options: MapOptions = {},
+  ): CustomerOrmEntity {
     const orm = new CustomerOrmEntity();
 
     if (domain.id !== null) {
@@ -47,6 +50,18 @@ export class CustomerMapper {
     orm.createdAt = domain.createdAt;
     orm.updatedAt = domain.updatedAt;
     orm.deletedAt = domain.deletedAt;
+
+    if (options.relations !== false) {
+      if (domain.box) {
+        orm.box = BoxMapper.toPersistence(domain.box, { relations: false });
+      }
+
+      if (domain.dropCables) {
+        orm.dropCables = domain.dropCables.map((dropCable) =>
+          DropCableMapper.toPersistence(dropCable, { relations: false }),
+        );
+      }
+    }
 
     return orm;
   }

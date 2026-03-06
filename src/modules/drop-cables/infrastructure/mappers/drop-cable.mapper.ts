@@ -34,7 +34,10 @@ export class DropCableMapper {
     return dropCable;
   }
 
-  static toPersistence(domain: DropCable): DropCableOrmEntity {
+  static toPersistence(
+    domain: DropCable,
+    options: MapOptions = {},
+  ): DropCableOrmEntity {
     const orm = new DropCableOrmEntity();
 
     if (domain.id !== null) {
@@ -47,6 +50,18 @@ export class DropCableMapper {
     orm.createdAt = domain.createdAt;
     orm.updatedAt = domain.updatedAt;
     orm.deletedAt = domain.deletedAt;
+
+    if (options.relations !== false) {
+      if (domain.box) {
+        orm.box = BoxMapper.toPersistence(domain.box, { relations: false });
+      }
+
+      if (domain.customer) {
+        orm.customer = CustomerMapper.toPersistence(domain.customer, {
+          relations: false,
+        });
+      }
+    }
 
     return orm;
   }

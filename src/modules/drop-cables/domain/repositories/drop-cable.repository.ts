@@ -19,8 +19,9 @@ export interface IDropCableRepository {
 
   create(dropCable: DropCable): Promise<DropCable>;
 
+  upsertMany(dropCables: DropCable[]): Promise<DropCable[]>;
+
   update(dropCable: DropCable): Promise<DropCable>;
 
   delete(dropCable: DropCable): Promise<void>;
 }
-

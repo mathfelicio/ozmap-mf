@@ -13,9 +13,18 @@ export class CreateDropCableUseCase {
     private readonly dropCableRepository: IDropCableRepository,
   ) {}
 
-  async execute(payload: CreateDropCableCommandPayload): Promise<DropCable> {
-    const dropCable = DropCable.create(payload);
+  async execute(
+    payload: CreateDropCableCommandPayload[],
+  ): Promise<DropCable[]> {
+    const dropCables = payload.map((dropCable) =>
+      DropCable.create({
+        id: dropCable.id,
+        name: dropCable.name,
+        boxId: dropCable.box_id,
+        customerId: dropCable.customer_id,
+      }),
+    );
 
-    return this.dropCableRepository.create(dropCable);
+    return this.dropCableRepository.upsertMany(dropCables);
   }
 }

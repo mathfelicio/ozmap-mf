@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { EntityManager, Repository } from "typeorm";
+import { EntityManager, In, Repository } from "typeorm";
 
 import type {
   FindCriteria,
@@ -48,6 +48,30 @@ export class DropCableTypeormRepository implements IDropCableRepository {
     );
 
     return DropCableMapper.toDomain(saved);
+  }
+
+  async upsertMany(dropCables: DropCable[]): Promise<DropCable[]> {
+    if (!dropCables.length) {
+      return [];
+    }
+
+    const persistenceDropCables = dropCables.map((dropCable) =>
+      DropCableMapper.toPersistence(dropCable),
+    );
+
+    await this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(DropCableOrmEntity)
+      .values(persistenceDropCables)
+      .orUpdate(["name", "box_id", "customer_id"], ["id"])
+      .execute();
+
+    const ids = persistenceDropCables.map((dropCable) => dropCable.id);
+
+    const saved = await this.repository.findBy({ id: In(ids) });
+
+    return saved.map((entity) => DropCableMapper.toDomain(entity));
   }
 
   async update(dropCable: DropCable): Promise<DropCable> {

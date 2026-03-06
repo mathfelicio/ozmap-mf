@@ -19,6 +19,8 @@ export interface ICustomerRepository {
 
   create(customer: Customer): Promise<Customer>;
 
+  upsertMany(customers: Customer[]): Promise<Customer[]>;
+
   update(customer: Customer): Promise<Customer>;
 
   delete(customer: Customer): Promise<void>;
