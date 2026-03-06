@@ -5,9 +5,7 @@ import {
   TableForeignKey,
 } from "typeorm";
 
-export class CreateDropCablesTable1741202000003
-  implements MigrationInterface
-{
+export class CreateDropCablesTable1741202000003 implements MigrationInterface {
   name = "CreateDropCablesTable1741202000003";
 
   private readonly table = new Table({

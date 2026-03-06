@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
-export class CreateBoxesTable1741202000000 implements MigrationInterface {
-  name = "CreateBoxesTable1741202000000";
+export class CreateBoxesTable1741201999999 implements MigrationInterface {
+  name = "CreateBoxesTable1741201999999";
 
   private readonly table = new Table({
     name: "boxes",

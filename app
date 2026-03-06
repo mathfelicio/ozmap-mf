@@ -11,6 +11,7 @@ case "${1:-run}" in
     ;;
   stop) docker compose down ;;
   logs) docker compose logs -f app ;;
+  reset-mocks) docker compose up -d --force-recreate isp-mock ozmap-mock ;;
   *)
     docker compose up -d mysql mongodb isp-mock ozmap-mock
     if [ "$1" = "yarn" ] && [ "${2:-}" = "typeorm" ]; then
