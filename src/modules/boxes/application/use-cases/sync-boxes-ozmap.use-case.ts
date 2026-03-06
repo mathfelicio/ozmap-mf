@@ -18,7 +18,7 @@ export class SyncBoxesOzmapUseCase implements Syncable<Box> {
     private readonly ozmSdkAuthService: IOzmSdkAuthService,
   ) {}
 
-  getHierarcy(): number {
+  getHierarchy(): number {
     const configuredLevel = Number(process.env.OZMAP_BOX_HIERARCHY_LEVEL ?? 1);
     return Number.isNaN(configuredLevel) ? 0 : configuredLevel;
   }
@@ -79,7 +79,7 @@ export class SyncBoxesOzmapUseCase implements Syncable<Box> {
           sdk.box.create(
             SyncBoxesOzmapMapper.toCreateDto(box, {
               projectId: "mock",
-              hierarchyLevel: this.getHierarcy(),
+              hierarchyLevel: this.getHierarchy(),
             }),
           ),
         ),

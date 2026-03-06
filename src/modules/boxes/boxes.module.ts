@@ -3,17 +3,22 @@ import { CqrsModule } from "@nestjs/cqrs";
 import { CreateBoxHandler } from "./application/commands/create-box.handler";
 import { SyncBoxesOzmapHandler } from "./application/commands/sync-boxes-ozmap.handler";
 import { CreateBoxUseCase } from "./application/use-cases/create-box.use-case";
+import { CreateBoxesOzmapUseCase } from "./application/use-cases/create-boxes-ozmap.use-case";
 import { SyncBoxesOzmapUseCase } from "./application/use-cases/sync-boxes-ozmap.use-case";
+import { UpdateBoxesOzmapUseCase } from "./application/use-cases/update-boxes-ozmap.use-case";
 import { BOX_REPOSITORY } from "./domain/repositories/box.repository";
 import { BoxTypeormRepository } from "./infrastructure/repositories/box-typeorm.repository";
 import { OzmSdkModule } from "../ozm-sdk/ozm-sdk.module";
+import { FailuresModule } from "../../common/failures/failures.module";
 
 @Module({
-  imports: [CqrsModule, OzmSdkModule],
+  imports: [CqrsModule, OzmSdkModule, FailuresModule],
   providers: [
     CreateBoxHandler,
     SyncBoxesOzmapHandler,
     CreateBoxUseCase,
+    CreateBoxesOzmapUseCase,
+    UpdateBoxesOzmapUseCase,
     SyncBoxesOzmapUseCase,
     BoxTypeormRepository,
     {
