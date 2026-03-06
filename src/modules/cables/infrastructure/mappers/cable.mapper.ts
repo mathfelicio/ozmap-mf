@@ -28,7 +28,10 @@ export class CableMapper {
     return cable;
   }
 
-  static toPersistence(domain: Cable): CableOrmEntity {
+  static toPersistence(
+    domain: Cable,
+    options: MapOptions = {},
+  ): CableOrmEntity {
     const orm = new CableOrmEntity();
 
     if (domain.id !== null) {
@@ -41,6 +44,12 @@ export class CableMapper {
     orm.createdAt = domain.createdAt;
     orm.updatedAt = domain.updatedAt;
     orm.deletedAt = domain.deletedAt;
+
+    if (options.relations !== false && domain.boxes) {
+      orm.boxes = domain.boxes.map((box) =>
+        BoxMapper.toPersistence(box, { relations: false }),
+      );
+    }
 
     return orm;
   }

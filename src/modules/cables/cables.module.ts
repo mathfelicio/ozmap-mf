@@ -4,9 +4,10 @@ import { CreateCableHandler } from "./application/commands/create-cable.handler"
 import { CreateCableUseCase } from "./application/use-cases/create-cable.use-case";
 import { CABLE_REPOSITORY } from "./domain/repositories/cable.repository";
 import { CableTypeormRepository } from "./infrastructure/repositories/cable-typeorm.repository";
+import { BoxesModule } from "../boxes/boxes.module";
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, BoxesModule],
   providers: [
     CreateCableHandler,
     CreateCableUseCase,
