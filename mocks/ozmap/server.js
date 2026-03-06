@@ -35,11 +35,6 @@ server.use('/api/v2', (req, res, next) => {
       console.error('Failed to parse filter:', req.query.filter);
     }
   }
-  
-  // Re-route internally by removing prefix
-  req.url = req.url.replace(/^\/api\/v2/, '');
-  if (req.url === '') req.url = '/';
-  
   next();
 });
 
@@ -59,7 +54,9 @@ router.render = (req, res) => {
   }
 };
 
-// Use the router for ALL requests (it will match based on the rewritten req.url)
+// Use the router for ALL requests. 
+// Mounting it at /api/v2 ensures it handles rewritten requests correctly.
+server.use('/api/v2', router);
 server.use(router);
 
 const PORT = 5000;

@@ -39,7 +39,7 @@ services:
       dockerfile: ../Dockerfile
     container_name: isp-mock
     working_dir: /mock
-    command: json-server --host 0.0.0.0 --watch db.json --port 4000
+    command: nodemon -L --watch db.json --exec "json-server --host 0.0.0.0 --watch db.json --port 4000"
     volumes:
       - ./mocks/isp/db.json:/mock/db.json
     ports:
@@ -57,7 +57,7 @@ services:
       dockerfile: ../Dockerfile
     container_name: ozmap-mock
     working_dir: /mock
-    command: node server.js
+    command: nodemon -L --watch db.json --watch server.js server.js
     volumes:
       - ./mocks/ozmap/db.json:/mock/db.json
       - ./mocks/ozmap/server.js:/mock/server.js

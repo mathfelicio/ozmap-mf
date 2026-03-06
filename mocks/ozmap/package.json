@@ -2,7 +2,12 @@
   "name": "ozmap-mock",
   "version": "1.0.0",
   "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon --watch db.json --watch server.js server.js"
+  },
   "dependencies": {
-    "json-server": "0.17.4"
+    "json-server": "0.17.4",
+    "nodemon": "^3.1.0"
   }
 }
