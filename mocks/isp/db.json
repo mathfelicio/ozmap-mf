@@ -2,7 +2,7 @@
   "cables": [
     {
       "id": 1,
-      "name": "Fiber Route A",
+      "name": "Fiber Route 1",
       "capacity": 144,
       "boxes_connected": [1, 2],
       "path": [

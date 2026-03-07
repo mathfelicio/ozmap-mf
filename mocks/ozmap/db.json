@@ -1,6 +1,7 @@
 {
-  "sync_logs": [],
-  "network_nodes": [],
-  "network_links": [],
-  "customers": []
+  "cables": [],
+  "drop_cables": [],
+  "boxes": [],
+  "customers": [],
+  "properties": []
 }
