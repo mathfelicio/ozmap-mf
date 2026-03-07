@@ -4,13 +4,13 @@ Este documento descreve a arquitetura atual do **ozmap-mf**.
 
 ## Visao Geral do Sistema
 
-O projeto segue uma arquitetura modular no NestJS, com separacao por camadas (Apresentacao, Aplicacao, Dominio e Infraestrutura) e uso de CQRS para comandos.
+O projeto usa arquitetura modular em NestJS, com separacao por camadas (Apresentacao, Aplicacao, Dominio e Infraestrutura), CQRS para comandos e execucao agendada com `@nestjs/schedule`.
 
 ### Diagrama 1: Camadas
 
 ```mermaid
 graph TD
-    Presentation[Camada de Apresentacao<br/>Controllers e Crons]
+    Presentation[Camada de Apresentacao<br/>Crons]
     Application[Camada de Aplicacao<br/>Casos de Uso e Command Handlers]
     Domain[Camada de Dominio<br/>Entidades e Contratos de Repositorio]
     Infrastructure[Camada de Infraestrutura<br/>TypeORM, Mapeadores e Integracoes Externas]
@@ -42,6 +42,7 @@ graph TD
     Cqrs[CQRS]
     Schedule[Agendador]
     Mysql[(MySQL + TypeORM)]
+    Mongo[(MongoDB + TypeORM)]
     IspApi[(ISP API)]
     Ozmap[(OZmap API)]
 
@@ -54,6 +55,7 @@ graph TD
     AppModule --> Cqrs
     AppModule --> Schedule
     AppModule --> Mysql
+    AppModule --> Mongo
 
     IspSync --> IspApi
     IspSync --> Boxes
@@ -61,6 +63,7 @@ graph TD
     IspSync --> Customers
     IspSync --> DropCables
     IspSync --> OzmSdk
+
     OzmSdk --> Ozmap
     Boxes --> Ozmap
     Cables --> Ozmap
@@ -70,34 +73,30 @@ graph TD
 
 ## Fluxo Principal de Sincronizacao
 
-1. `IspSyncCron` dispara `RunIspSyncCommand` a cada 30 segundos.
-2. `RunIspSyncUseCase` busca dados na API do ISP (`boxes`, `cables`, `customers`, `drop_cables`).
-3. Cada modulo executa `upsertMany` no MySQL.
-4. Ao final, `RunOzmapSyncUseCase` dispara sincronizacao com OZmap.
-5. Arquitetura alvo: **boxes, cables, customers e drop-cables** sincronizados com OZmap com casos de uso dedicados por modulo.
+1. `IspSyncCron` dispara `RunIspSyncCommand` a cada **10 segundos**.
+2. `RunIspSyncUseCase` consulta ISP API (`boxes`, `cables`, `customers`, `drop_cables`).
+3. Cada modulo de dominio executa persistencia/upsert no MySQL.
+4. `RunOzmapSyncUseCase` dispara sincronizacao para OZmap em sequencia: `SyncBoxesOzmapCommand` -> `SyncCablesOzmapCommand` -> `SyncCustomersOzmapCommand` -> `SyncDropCablesOzmapCommand`.
 
 ## Modulos e Responsabilidades
 
-- `isp-sync`: orquestra fluxo de importacao ISP e sincronizacao para OZmap.
-- `boxes`: persiste boxes e sincroniza boxes com OZmap.
-- `cables`: persiste cabos e atualiza relacao N:N com boxes (`cable_boxes_connected`).
-- `customers`: persiste clientes.
-- `drop-cables`: persiste drop cables.
+- `isp-sync`: orquestra a importacao do ISP e aciona o sync OZmap.
+- `boxes`: persiste boxes e sincroniza com OZmap.
+- `cables`: persiste cabos, relaciona N:N com boxes (`cable_boxes_connected`) e sincroniza com OZmap.
+- `customers`: persiste clientes e sincroniza com OZmap.
+- `drop-cables`: persiste drop cables e sincroniza com OZmap.
 - `ozm-sdk`: encapsula autenticacao/acesso ao SDK da OZmap.
+- `failure-handler`: no contexto do teste, a proposta e resolver o problema de retries. Toda vez que uma conversa com a API da OZmap falhar, o erro deve ser gravado no MongoDB (`failure_queue`), e o modulo deve reprocessar as tentativas; ao esgotar o limite, deve mover para `failure_dead_letter`. Esse fluxo foi desenhado, mas nao foi implementado por falta de tempo.
 
 ## Persistencia e Relacionamentos
 
-- Banco principal: **MySQL** via TypeORM.
-- Tabelas principais: `boxes`, `cables`, `customers`, `drop_cables`, `cable_boxes_connected`.
-- Relacoes:
-  - `Box` 1:N `Customer`
-  - `Box` 1:N `DropCable`
-  - `Customer` 1:N `DropCable`
-  - `Cable` N:N `Box`
+- MySQL (via TypeORM): tabelas principais `boxes`, `cables`, `customers`, `drop_cables`, `cable_boxes_connected`.
+- Relacoes de dominio: `Box` 1:N `Customer`, `Box` 1:N `DropCable`, `Customer` 1:N `DropCable`, `Cable` N:N `Box`.
+- MongoDB (via TypeORM): colecoes de falhas `failure_queue` e `failure_dead_letter`.
 
 ## Observacoes Atuais
 
-- Existe configuracao de MongoDB no projeto, mas o `AppModule` atual sobe apenas MySQL.
-- Os endpoints HTTP atuais sao basicos (`/isp-sync/hello` e `/ozm-sdk/hello`), enquanto o fluxo principal roda por cron/CQRS.
-- Implementacao atual da sincronizacao com OZmap: apenas `boxes`.
-- Direcao arquitetural: todos os modulos de negocio seguirem o mesmo padrao de integracao com a API OZmap.
+- O `AppModule` sobe duas conexoes TypeORM: MySQL (default) e MongoDB (`name: "mongodb"`).
+- O fluxo principal atual e orientado a `cron + command bus`; nao ha controllers HTTP expostos no `src`.
+- Sincronizacao OZmap ja esta implementada para os quatro dominios: `boxes`, `cables`, `customers` e `drop-cables`.
+- O `failure-handler` esta previsto para tratar falhas de integracao com a OZmap API, registrando erros no MongoDB e executando retries de forma centralizada, mas ficou pendente por falta de tempo.
