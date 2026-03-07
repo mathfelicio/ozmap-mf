@@ -48,12 +48,6 @@ Definidas no `docker-compose.yml`:
 - `SYNC_INTERVAL_SECONDS=60`
 - `ISP_RATE_LIMIT_PER_MINUTE=50`
 
-## Troubleshooting
-
-- Erro `getaddrinfo ENOTFOUND mongodb`: acontece quando a app roda fora do Docker usando `mongodb` como host.
-- Para execução local, use `MONGODB_URI=mongodb://root:root@localhost:27017/ozmap_integration?authSource=admin`.
-- No `docker compose`, o host correto continua sendo `mongodb`.
-
 ## Arquitetura do Projeto
 
 A arquitetura detalhada pode ser encontrada no arquivo [ARCHITECTURE.md](ARCHITECTURE.md).
