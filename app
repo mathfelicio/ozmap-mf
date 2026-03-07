@@ -6,8 +6,8 @@ case "${1:-run}" in
   run) docker compose up --build app ;;
   dev)
     docker compose up -d mysql mongodb isp-mock ozmap-mock
-    docker compose build --no-cache app
-    docker compose run --rm --service-ports app yarn dev
+    docker compose build app
+    docker compose run --rm --service-ports app sh -lc "yarn install && yarn dev"
     ;;
   stop) docker compose down ;;
   logs) docker compose logs -f app ;;

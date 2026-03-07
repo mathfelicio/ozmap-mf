@@ -2,6 +2,9 @@ const jsonServer = require('json-server');
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
+const rewriter = jsonServer.rewriter({
+  '/api/v2/*': '/$1'
+});
 
 server.use(middlewares);
 server.use(jsonServer.bodyParser);
@@ -21,7 +24,7 @@ server.post('/api/v2/users/login', (req, res) => {
 });
 
 // Handle OZMap SDK filters and translate to json-server format
-server.use('/api/v2', (req, res, next) => {
+server.use((req, res, next) => {
   if (req.query.filter) {
     try {
       const filters = JSON.parse(req.query.filter);
@@ -37,6 +40,10 @@ server.use('/api/v2', (req, res, next) => {
   }
   next();
 });
+
+// Explicitly rewrite API versioned routes to json-server resources.
+// This avoids edge cases where mounting the router at /api/v2 can miss matches.
+server.use(rewriter);
 
 // Wrapping list responses in { rows, count, hasNextPage }
 router.render = (req, res) => {
@@ -54,9 +61,7 @@ router.render = (req, res) => {
   }
 };
 
-// Use the router for ALL requests. 
-// Mounting it at /api/v2 ensures it handles rewritten requests correctly.
-server.use('/api/v2', router);
+// Use the router for all rewritten and direct requests.
 server.use(router);
 
 const PORT = 5000;
