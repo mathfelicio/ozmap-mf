@@ -7,10 +7,9 @@ import { SyncBoxesOzmapUseCase } from "./application/use-cases/sync-boxes-ozmap.
 import { BOX_REPOSITORY } from "./domain/repositories/box.repository";
 import { BoxTypeormRepository } from "./infrastructure/repositories/box-typeorm.repository";
 import { OzmSdkModule } from "../ozm-sdk/ozm-sdk.module";
-import { FailuresModule } from "../../common/failures/failures.module";
 
 @Module({
-  imports: [CqrsModule, OzmSdkModule, FailuresModule],
+  imports: [CqrsModule, OzmSdkModule],
   providers: [
     CreateBoxHandler,
     SyncBoxesOzmapHandler,

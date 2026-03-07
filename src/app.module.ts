@@ -10,7 +10,6 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { dataSourceOptions } from "./database/config/mysql-orm.config";
 import { mongoOrmConfig } from "./database/config/mongo-orm.config";
-import { FailuresModule } from "./common/failures/failures.module";
 
 @Module({
   imports: [
@@ -23,7 +22,6 @@ import { FailuresModule } from "./common/failures/failures.module";
       name: "mongodb",
       useFactory: () => mongoOrmConfig,
     }),
-    FailuresModule,
     IspSyncModule,
     OzmSdkModule,
     CablesModule,
