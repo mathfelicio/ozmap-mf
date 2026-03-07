@@ -1,16 +1,16 @@
-# Teste Tecnico OZmap - Ambiente Docker
+# Teste Técnico OZmap - Ambiente Docker
 
-Este repositorio contem um ambiente Docker para executar o teste tecnico de integracao de dados ISP com OZmap.
+Este repositório contém um ambiente Docker para executar o teste técnico de integração de dados ISP com OZmap.
 
-## Servicos do `docker-compose`
+## Serviços do `docker-compose`
 
-- `app`: servico Node.js + TypeScript para sincronizacao periodica.
+- `app`: serviço Node.js + TypeScript para sincronização periódica.
 - `isp-mock`: API mock do ISP com `json-server` (porta `4000`).
 - `ozmap-mock`: API mock do OZmap (porta `5000`).
-- `mongodb`: persistencia de fila de falhas/retries (porta `27017`).
+- `mongodb`: persistência de fila de falhas/retries (porta `27017`).
 - `mysql`: banco relacional principal (porta `3306` no container, `5484` no host).
 
-## Pre-requisitos
+## Pré-requisitos
 
 - Docker
 - Docker Compose
@@ -23,14 +23,14 @@ Modo desenvolvimento (`yarn dev` no container da app):
 ./app dev
 ```
 
-## Endpoints uteis
+## Endpoints úteis
 
 - ISP Mock boxes: `http://localhost:4000/boxes`
 - ISP Mock cables: `http://localhost:4000/cables`
 - ISP Mock customers: `http://localhost:4000/customers`
 - ISP Mock drop_cables: `http://localhost:4000/drop_cables`
 
-## Variaveis de ambiente da app
+## Variáveis de ambiente da app
 
 Definidas no `docker-compose.yml`:
 
@@ -51,25 +51,25 @@ Definidas no `docker-compose.yml`:
 ## Troubleshooting
 
 - Erro `getaddrinfo ENOTFOUND mongodb`: acontece quando a app roda fora do Docker usando `mongodb` como host.
-- Para execucao local, use `MONGODB_URI=mongodb://root:root@localhost:27017/ozmap_integration?authSource=admin`.
+- Para execução local, use `MONGODB_URI=mongodb://root:root@localhost:27017/ozmap_integration?authSource=admin`.
 - No `docker compose`, o host correto continua sendo `mongodb`.
 
 ## Arquitetura do Projeto
 
 A arquitetura detalhada pode ser encontrada no arquivo [ARCHITECTURE.md](ARCHITECTURE.md).
 
-### Visao Geral
+### Visão Geral
 
 O projeto utiliza uma arquitetura modular em NestJS, seguindo os princípios de separação de responsabilidades em camadas (Apresentação, Aplicação, Domínio e Infraestrutura) e o padrão CQRS para manipulação de comandos.
 
-#### Camadas e Modulos
+#### Camadas e Módulos
 
 ```mermaid
 graph TD
-    Presentation[Camada de Apresentacao<br/>Crons]
-    Application[Camada de Aplicacao<br/>Casos de Uso e Command Handlers]
-    Domain[Camada de Dominio<br/>Entidades e Contratos de Repositorio]
-    Infrastructure[Camada de Infraestrutura<br/>TypeORM, Mapeadores e Integracoes Externas]
+    Presentation[Camada de Apresentação<br/>Crons]
+    Application[Camada de Aplicação<br/>Casos de Uso e Command Handlers]
+    Domain[Camada de Domínio<br/>Entidades e Contratos de Repositório]
+    Infrastructure[Camada de Infraestrutura<br/>TypeORM, Mapeadores e Integrações Externas]
 
     Presentation --> Application
     Application --> Domain
@@ -77,12 +77,12 @@ graph TD
     Infrastructure --> Application
 ```
 
-### Fluxo de Sincronizacao
+### Fluxo de Sincronização
 
 1. **Agendamento**: O `IspSyncCron` dispara o processo periodicamente.
 2. **Coleta**: O `RunIspSyncUseCase` busca dados da API do ISP.
-3. **Persistencia**: Os dados são processados e salvos no MySQL (TypeORM).
-4. **Integracao**: O `RunOzmapSyncUseCase` coordena o envio sequencial para o OZmap (`Boxes` -> `Cables` -> `Customers` -> `Drop Cables`).
+3. **Persistência**: Os dados são processados e salvos no MySQL (TypeORM).
+4. **Integração**: O `RunOzmapSyncUseCase` coordena o envio sequencial para o OZmap (`Boxes` -> `Cables` -> `Customers` -> `Drop Cables`).
 
 ### Tecnologias e Ferramentas
 
@@ -119,9 +119,9 @@ graph TD
         `-- server.js
 ```
 
-## Observacoes do teste
+## Observações do teste
 
-- A integracao com o OZmap usa o `@ozmap/ozmap-sdk`, com autenticacao no modulo `ozm-sdk`.
-- O fluxo principal de sincronizacao (ISP -> MySQL -> OZmap) esta funcional para `boxes`, `cables`, `customers` e `drop-cables`.
+- A integração com o OZmap usa o `@ozmap/ozmap-sdk`, com autenticação no módulo `ozm-sdk`.
+- O fluxo principal de sincronização (ISP -> MySQL -> OZmap) está funcional para `boxes`, `cables`, `customers` e `drop-cables`.
 - O `failure-handler` foi desenhado para retries centralizados: quando uma chamada para a API OZmap falhar, o erro deve ser gravado no MongoDB (`failure_queue`) e reprocessado; ao esgotar tentativas, deve ir para `failure_dead_letter`.
 - Esse fluxo completo do `failure-handler` ficou pendente por falta de tempo.
