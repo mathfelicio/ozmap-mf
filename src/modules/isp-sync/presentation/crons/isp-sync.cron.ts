@@ -7,7 +7,7 @@ import { RunIspSyncCommand } from "../../application/commands/run-isp-sync.comma
 export class IspSyncCron {
   constructor(private readonly commandBus: CommandBus) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async handleCron(): Promise<void> {
     await this.commandBus.execute(new RunIspSyncCommand("cron"));
     console.log("Cron executed successfully.");

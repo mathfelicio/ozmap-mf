@@ -10,8 +10,7 @@ import { SyncDropCablesOzmapMapper } from "../../infrastructure/mappers/sync-dro
 @Injectable()
 export class SyncDropCablesOzmapUseCase implements Syncable<DropCable> {
   private itemsToSync: DropCable[] = [];
-  private itemsToCreate: DropCable[] = [];
-  private itemsToUpdate: { local: DropCable; remoteId: string }[] = [];
+  private syncTasks: { propertyRemoteId: string; boxRemoteId: string }[] = [];
 
   constructor(
     @Inject(OZM_SDK_AUTH_SERVICE)
@@ -19,10 +18,7 @@ export class SyncDropCablesOzmapUseCase implements Syncable<DropCable> {
   ) {}
 
   getHierarchy(): number {
-    const configuredLevel = Number(
-      process.env.OZMAP_DROP_CABLE_HIERARCHY_LEVEL ?? 1,
-    );
-    return Number.isNaN(configuredLevel) ? 0 : configuredLevel;
+    return 0;
   }
 
   async execute(payload: DropCable[]): Promise<void> {
@@ -33,64 +29,47 @@ export class SyncDropCablesOzmapUseCase implements Syncable<DropCable> {
 
   async fetch(): Promise<DropCable[]> {
     const sdk = this.ozmSdkAuthService.auth;
-    this.itemsToCreate = [];
-    this.itemsToUpdate = [];
-    const remoteCables = await sdk.cable.findAll();
+    this.syncTasks = [];
 
-    await Promise.all(
-      this.itemsToSync.map(async (dropCable) => {
-        const externalId = SyncDropCablesOzmapMapper.toExternalId(dropCable.id);
+    // Busca todas as propriedades e caixas para fazer o de-para de IDs externos
+    const [remoteProperties, remoteBoxes] = await Promise.all([
+      sdk.property.findAll(),
+      sdk.box.findAll(),
+    ]);
 
-        if (!externalId) {
-          this.itemsToCreate.push(dropCable);
-          return;
-        }
+    this.itemsToSync.forEach((dropCable) => {
+      const customerExternalId = SyncDropCablesOzmapMapper.toCustomerExternalId(
+        dropCable.customerId,
+      );
+      const boxExternalId = dropCable.boxId.toString();
 
-        const remoteDropCable = remoteCables.find(
-          (item) => String(item.external_id) === String(externalId),
-        );
+      const remoteProperty = remoteProperties.find(
+        (p) => String(p.external_id) === customerExternalId,
+      );
+      const remoteBox = remoteBoxes.find(
+        (b) => String(b.external_id) === boxExternalId,
+      );
 
-        if (remoteDropCable) {
-          this.itemsToUpdate.push({
-            local: dropCable,
-            remoteId: String(remoteDropCable.id),
-          });
-        } else {
-          this.itemsToCreate.push(dropCable);
-        }
-      }),
-    );
+      if (remoteProperty && remoteBox) {
+        this.syncTasks.push({
+          propertyRemoteId: String(remoteProperty.id),
+          boxRemoteId: String(remoteBox.id),
+        });
+      }
+    });
 
     return this.itemsToSync;
   }
 
   async sync(): Promise<void> {
     const sdk = this.ozmSdkAuthService.auth;
-    const projectId = process.env.OZMAP_PROJECT_ID ?? "mock";
-    const cableType = process.env.OZMAP_DROP_CABLE_TYPE_ID ?? "mock";
-    const hierarchyLevel = this.getHierarchy();
 
-    if (this.itemsToCreate.length > 0) {
+    if (this.syncTasks.length > 0) {
       await Promise.all(
-        this.itemsToCreate.map((dropCable) =>
-          sdk.cable.create(
-            SyncDropCablesOzmapMapper.toCreateDto(dropCable, {
-              projectId,
-              cableType,
-              hierarchyLevel,
-            }),
-          ),
-        ),
-      );
-    }
-
-    if (this.itemsToUpdate.length > 0) {
-      await Promise.all(
-        this.itemsToUpdate.map(({ local, remoteId }) =>
-          sdk.cable.updateById(
-            remoteId,
-            SyncDropCablesOzmapMapper.toUpdateDto(local),
-          ),
+        this.syncTasks.map((task) =>
+          sdk.property.updateById(task.propertyRemoteId, {
+            box: task.boxRemoteId,
+          }),
         ),
       );
     }
