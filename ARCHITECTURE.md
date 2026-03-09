@@ -73,7 +73,7 @@ graph TD
 
 ## Fluxo Principal de Sincronização
 
-1. `IspSyncCron` dispara `RunIspSyncCommand` a cada **10 segundos**.
+1. `IspSyncCron` dispara `RunIspSyncCommand` a cada **1 minuto**.
 2. `RunIspSyncUseCase` consulta ISP API (`boxes`, `cables`, `customers`, `drop_cables`).
 3. Cada módulo de domínio executa persistência/upsert no MySQL.
 4. `RunOzmapSyncUseCase` dispara sincronização para OZmap em sequência: `SyncBoxesOzmapCommand` -> `SyncCablesOzmapCommand` -> `SyncCustomersOzmapCommand` -> `SyncDropCablesOzmapCommand`.
