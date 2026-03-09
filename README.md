@@ -23,6 +23,12 @@ Modo desenvolvimento (`yarn dev` no container da app):
 ./app dev
 ```
 
+**Importante:** Na primeira execução do projeto, após iniciar o ambiente com `./app dev`, é necessário rodar as migrations do banco de dados:
+
+```bash
+./app yarn typeorm migration:run
+```
+
 ## Endpoints úteis
 
 - ISP Mock boxes: `http://localhost:4000/boxes`
